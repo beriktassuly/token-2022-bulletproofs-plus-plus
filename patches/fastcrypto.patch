@@ -1,0 +1,199 @@
+diff --git a/fastcrypto/Cargo.toml b/fastcrypto/Cargo.toml
+index 8b8e8b2..dd5d5eb 100644
+--- a/fastcrypto/Cargo.toml
++++ b/fastcrypto/Cargo.toml
+@@ -124,6 +124,10 @@ copy_key = []
+ # Used for feature that are not yet audited.
+ experimental = []
+ 
++# Pedersen bases of Solana zk-sdk / Aptos. Process-wide: every fastcrypto user in the
++# build sees them (Cargo feature unification). Off by default: stock behaviour is unchanged.
++solana-pedersen-bases = ["experimental"]
++
+ # Include AES and its modes.
+ aes = ["dep:aes", "dep:cbc", "dep:aes-gcm", "dep:ctr", "dep:aes-gcm-siv"]
+ 
+diff --git a/fastcrypto/benches/bulletproofspp.rs b/fastcrypto/benches/bulletproofspp.rs
+index 8bcf44d..f639b56 100644
+--- a/fastcrypto/benches/bulletproofspp.rs
++++ b/fastcrypto/benches/bulletproofspp.rs
+@@ -10,7 +10,15 @@ use std::time::Duration;
+ use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+ use fastcrypto::bulletproofs::RangeProof as BpRangeProof;
+ use fastcrypto::bulletproofspp::{Range, RangeProof};
++use fastcrypto::groups::ristretto255::RistrettoScalar;
+ use fastcrypto::pedersen::{Blinding, PedersenCommitment};
++use fastcrypto::serde_helpers::ToFromByteArray;
+ use rand::Rng;
++
++// Shared with the Token-2022 end-to-end tests: chunked16/src/lib.rs of the benchmark
++// repository, which checks fastcrypto out at .upstream/fastcrypto (scripts/upstream.sh).
++#[allow(dead_code)]
++#[path = "../../../../chunked16/src/lib.rs"]
++mod chunked16;
+ 
+ const DST: &[u8] = b"bench";
+@@ -84,13 +92,19 @@ fn bp_benchmarks(c: &mut Criterion) {
+     grp.finish();
+ }
+ 
+ fn bppp_benchmarks(c: &mut Criterion) {
++    let fixture = PedersenCommitment::new(
++        &RistrettoScalar::from(42u64),
++        &Blinding(RistrettoScalar::from(17u64)),
++    );
++    println!("Solana Pedersen fixture: {:?}", fixture.0.to_byte_array());
+     let mut rng = rand::thread_rng();
++    let extra = [(Range::Bits32, 2), (Range::Bits64, 2)];
+ 
+     let mut grp = c.benchmark_group("BPPP prove");
+     grp.warm_up_time(Duration::from_secs(1));
+     grp.measurement_time(Duration::from_secs(3));
+-    for (range, m) in &CONFIGS {
++    for (range, m) in CONFIGS.iter().chain(&extra) {
+         let values = values(range, *m, &mut rng);
+         let (_, blindings) = commit(&values, &mut rng);
+         grp.bench_function(label(range, *m), |b| {
+@@ -102,7 +116,7 @@ fn bppp_benchmarks(c: &mut Criterion) {
+     let mut grp = c.benchmark_group("BPPP verify");
+     grp.warm_up_time(Duration::from_secs(1));
+     grp.measurement_time(Duration::from_secs(3));
+-    for (range, m) in &CONFIGS {
++    for (range, m) in CONFIGS.iter().chain(&extra) {
+         let values = values(range, *m, &mut rng);
+         let (commitments, blindings) = commit(&values, &mut rng);
+         let proof = RangeProof::prove_batch(&values, &blindings, range, DST, &mut rng).unwrap();
+@@ -110,6 +124,73 @@ fn bppp_benchmarks(c: &mut Criterion) {
+             b.iter(|| proof.verify_batch(&commitments, range, DST).unwrap())
+         });
+     }
++
++    for (name, widths) in [
++        ("transfer", &[64, 16, 32][..]),
++        ("transfer_with_fee", &[64, 16, 32, 16, 16, 16, 32, 64][..]),
++    ] {
++        let shifts: Vec<_> = widths.iter().map(|&width| 64 - width).collect();
++        let amounts: Vec<_> = shifts
++            .iter()
++            .map(|&shift| rng.gen::<u64>() >> shift)
++            .collect();
++        let (commitments, blindings) = commit(&amounts, &mut rng);
++        let commitment_bytes: Vec<_> = commitments.iter().map(|c| c.0.to_byte_array()).collect();
++        let factors: Vec<_> = shifts
++            .iter()
++            .map(|&s| RistrettoScalar::from(1u64 << s))
++            .collect();
++        let mut values = amounts.clone();
++        let mut proof_blindings = blindings.clone();
++        for (index, &shift) in shifts.iter().enumerate().filter(|(_, s)| **s != 0) {
++            values.push(amounts[index] << shift);
++            proof_blindings.push(Blinding(blindings[index].0 * factors[index]));
++        }
++        let proof =
++            RangeProof::prove_batch(&values, &proof_blindings, &Range::Bits64, DST, &mut rng)
++                .unwrap();
++        let proof_bytes = proof.to_bytes();
++        eprintln!("{name} lifting: {} proof bytes", proof_bytes.len());
++        grp.bench_function(format!("lifted/{name}"), |b| {
++            b.iter(|| {
++                let mut statement: Vec<_> = commitment_bytes
++                    .iter()
++                    .map(|bytes| chunked16::decode_commitment(bytes).unwrap())
++                    .collect();
++                for (index, &shift) in shifts.iter().enumerate().filter(|(_, s)| **s != 0) {
++                    let scaled = chunked16::scale_by_power_of_two(statement[index].0, shift);
++                    statement.push(PedersenCommitment(scaled));
++                }
++                RangeProof::from_bytes(&proof_bytes)
++                    .unwrap()
++                    .verify_batch(&statement, &Range::Bits64, DST)
++                    .unwrap();
++            })
++        });
++
++        // Same code path as the Token-2022 end-to-end tests: chunked16::{prove, verify}.
++        let chunked_dst = b"bench/chunked-16";
++        let chunked =
++            chunked16::prove(&amounts, &blindings, widths, chunked_dst, &mut rng).unwrap();
++        eprintln!(
++            "{name} chunked: {} proof bytes + {} auxiliary bytes",
++            chunked.proof_bytes(),
++            chunked.auxiliary_bytes()
++        );
++        let verify_chunked = |commitments: &[[u8; 32]]| {
++            chunked16::verify(commitments, widths, &chunked, chunked_dst)
++        };
++        verify_chunked(&commitment_bytes[..]).unwrap();
++        let mut changed = commitment_bytes.clone();
++        changed[0] = PedersenCommitment::commit_u64(42, &mut rng)
++            .0
++             .0
++            .to_byte_array();
++        assert!(verify_chunked(&changed).is_err());
++        grp.bench_function(format!("chunked/{name}"), |b| {
++            b.iter(|| verify_chunked(&commitment_bytes).unwrap())
++        });
++    }
+     grp.finish();
+ }
+ 
+diff --git a/fastcrypto/src/pedersen.rs b/fastcrypto/src/pedersen.rs
+index 0a81bfc..acfa4b7 100644
+--- a/fastcrypto/src/pedersen.rs
++++ b/fastcrypto/src/pedersen.rs
+@@ -4,6 +4,7 @@
+ use crate::error::FastCryptoError::InvalidProof;
+ use crate::error::FastCryptoResult;
+ use crate::groups::ristretto255::{RistrettoPoint, RistrettoScalar};
++#[cfg_attr(feature = "solana-pedersen-bases", allow(unused_imports))]
+ use crate::groups::{GroupElement, HashToGroupElement, MultiScalarMul, Scalar};
+ use crate::traits::AllowedRng;
+ use derive_more::{Add, Mul, Sub};
+@@ -12,10 +13,10 @@ use serde::{Deserialize, Serialize};
+ 
+ lazy_static! {
+     /// Base point for the value
+-    pub static ref H: RistrettoPoint = RistrettoPoint::hash_to_group_element(b"fastcrypto-blinding-gen-01");
++    pub static ref H: RistrettoPoint = value_base();
+ 
+     /// Base point for the blinding factor
+-    pub static ref G: RistrettoPoint = RistrettoPoint::generator();
++    pub static ref G: RistrettoPoint = blinding_base();
+ 
+     /// For integration with the bulletproofs crate, we give the generators we use here
+     /// Note that the bases here are different from `bulletproofs::PedersenGens::default()`.
+@@ -25,6 +26,34 @@ lazy_static! {
+     };
+ }
+ 
++#[cfg(not(feature = "solana-pedersen-bases"))]
++fn value_base() -> RistrettoPoint {
++    RistrettoPoint::hash_to_group_element(b"fastcrypto-blinding-gen-01")
++}
++
++#[cfg(not(feature = "solana-pedersen-bases"))]
++fn blinding_base() -> RistrettoPoint {
++    RistrettoPoint::generator()
++}
++
++/// Solana zk-sdk / Aptos: value base = Ristretto basepoint.
++#[cfg(feature = "solana-pedersen-bases")]
++fn value_base() -> RistrettoPoint {
++    RistrettoPoint::generator()
++}
++
++/// Solana zk-sdk / Aptos: blinding base = RistrettoPoint::hash_from_bytes::<Sha3_512>(basepoint),
++/// spelled via from_uniform_bytes because fastcrypto builds curve25519-dalek without `digest`.
++#[cfg(feature = "solana-pedersen-bases")]
++fn blinding_base() -> RistrettoPoint {
++    use sha3::{Digest, Sha3_512};
++    let mut wide = [0u8; 64];
++    wide.copy_from_slice(&Sha3_512::digest(
++        curve25519_dalek::constants::RISTRETTO_BASEPOINT_COMPRESSED.as_bytes(),
++    ));
++    RistrettoPoint(curve25519_dalek::ristretto::RistrettoPoint::from_uniform_bytes(&wide))
++}
++
+ #[derive(Clone, Debug, PartialEq, Eq, Add, Sub, Mul, Serialize, Deserialize)]
+ pub struct PedersenCommitment(pub RistrettoPoint);
+ 

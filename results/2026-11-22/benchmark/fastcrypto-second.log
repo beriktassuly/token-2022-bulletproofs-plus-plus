@@ -1,0 +1,184 @@
+    Finished `bench` profile [optimized] target(s) in 0.11s
+     Running benches/bulletproofspp.rs (/tmp/tmp.OOjTqyszj7/target/release/deps/bulletproofspp-341016fbecc86b0d)
+Gnuplot not found, using plotters backend
+Benchmarking BP verify/16-bit/1
+Benchmarking BP verify/16-bit/1: Warming up for 1.0000 s
+Benchmarking BP verify/16-bit/1: Collecting 25 samples in estimated 3.0069 s (9750 iterations)
+Benchmarking BP verify/16-bit/1: Analyzing
+BP verify/16-bit/1      time:   [299.25 µs 300.42 µs 301.44 µs]
+                        change: [-4.9283% -4.0843% -3.3068%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 3 outliers among 25 measurements (12.00%)
+  1 (4.00%) low mild
+  2 (8.00%) high mild
+Benchmarking BP verify/32-bit/1
+Benchmarking BP verify/32-bit/1: Warming up for 1.0000 s
+Benchmarking BP verify/32-bit/1: Collecting 25 samples in estimated 3.0065 s (6825 iterations)
+Benchmarking BP verify/32-bit/1: Analyzing
+BP verify/32-bit/1      time:   [441.83 µs 450.01 µs 461.34 µs]
+                        change: [-3.6418% -2.2339% -0.5779%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 1 outliers among 25 measurements (4.00%)
+  1 (4.00%) high severe
+Benchmarking BP verify/64-bit/1
+Benchmarking BP verify/64-bit/1: Warming up for 1.0000 s
+Benchmarking BP verify/64-bit/1: Collecting 25 samples in estimated 3.2287 s (4225 iterations)
+Benchmarking BP verify/64-bit/1: Analyzing
+BP verify/64-bit/1      time:   [750.03 µs 754.00 µs 758.56 µs]
+                        change: [-3.3433% -1.4706% +0.1802%] (p = 0.14 > 0.05)
+                        No change in performance detected.
+Found 2 outliers among 25 measurements (8.00%)
+  1 (4.00%) high mild
+  1 (4.00%) high severe
+Benchmarking BP verify/16-bit/4
+Benchmarking BP verify/16-bit/4: Warming up for 1.0000 s
+Benchmarking BP verify/16-bit/4: Collecting 25 samples in estimated 3.1344 s (3900 iterations)
+Benchmarking BP verify/16-bit/4: Analyzing
+BP verify/16-bit/4      time:   [774.46 µs 780.31 µs 790.31 µs]
+                        change: [-2.6985% -1.9837% -1.2093%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 4 outliers among 25 measurements (16.00%)
+  2 (8.00%) high mild
+  2 (8.00%) high severe
+Benchmarking BP verify/16-bit/8
+Benchmarking BP verify/16-bit/8: Warming up for 1.0000 s
+Benchmarking BP verify/16-bit/8: Collecting 25 samples in estimated 3.0650 s (2275 iterations)
+Benchmarking BP verify/16-bit/8: Analyzing
+BP verify/16-bit/8      time:   [1.3065 ms 1.3225 ms 1.3358 ms]
+                        change: [-7.9296% -7.2069% -6.3414%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Benchmarking BP verify/32-bit/8
+Benchmarking BP verify/32-bit/8: Warming up for 1.0000 s
+Benchmarking BP verify/32-bit/8: Collecting 25 samples in estimated 3.5656 s (1625 iterations)
+Benchmarking BP verify/32-bit/8: Analyzing
+BP verify/32-bit/8      time:   [2.1379 ms 2.1555 ms 2.1704 ms]
+                        change: [-5.4631% -4.8059% -4.2014%] (p = 0.00 < 0.05)
+                        Performance has improved.
+
+Solana Pedersen fixture: [198, 215, 137, 155, 154, 144, 222, 119, 14, 66, 138, 168, 209, 9, 91, 201, 72, 163, 161, 74, 51, 126, 120, 6, 92, 193, 254, 171, 9, 82, 57, 89]
+Benchmarking BPPP verify/16-bit/1
+Benchmarking BPPP verify/16-bit/1: Warming up for 1.0000 s
+Benchmarking BPPP verify/16-bit/1: Collecting 25 samples in estimated 3.0218 s (10k iterations)
+Benchmarking BPPP verify/16-bit/1: Analyzing
+BPPP verify/16-bit/1    time:   [309.15 µs 315.90 µs 324.01 µs]
+                        change: [+0.5244% +1.5615% +3.0146%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 6 outliers among 25 measurements (24.00%)
+  1 (4.00%) low mild
+  2 (8.00%) high mild
+  3 (12.00%) high severe
+Benchmarking BPPP verify/32-bit/1
+Benchmarking BPPP verify/32-bit/1: Warming up for 1.0000 s
+Benchmarking BPPP verify/32-bit/1: Collecting 25 samples in estimated 3.0702 s (10k iterations)
+Benchmarking BPPP verify/32-bit/1: Analyzing
+BPPP verify/32-bit/1    time:   [304.94 µs 308.19 µs 310.51 µs]
+                        change: [-2.2713% -1.0026% +0.1732%] (p = 0.12 > 0.05)
+                        No change in performance detected.
+Benchmarking BPPP verify/64-bit/1
+Benchmarking BPPP verify/64-bit/1: Warming up for 1.0000 s
+Benchmarking BPPP verify/64-bit/1: Collecting 25 samples in estimated 3.0607 s (10k iterations)
+Benchmarking BPPP verify/64-bit/1: Analyzing
+BPPP verify/64-bit/1    time:   [315.65 µs 325.81 µs 335.97 µs]
+                        change: [+1.3673% +3.1065% +5.4180%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 3 outliers among 25 measurements (12.00%)
+  3 (12.00%) high severe
+Benchmarking BPPP verify/16-bit/4
+Benchmarking BPPP verify/16-bit/4: Warming up for 1.0000 s
+Benchmarking BPPP verify/16-bit/4: Collecting 25 samples in estimated 3.0313 s (9100 iterations)
+Benchmarking BPPP verify/16-bit/4: Analyzing
+BPPP verify/16-bit/4    time:   [336.70 µs 338.92 µs 342.46 µs]
+                        change: [+2.9024% +3.9307% +5.0700%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 3 outliers among 25 measurements (12.00%)
+  1 (4.00%) high mild
+  2 (8.00%) high severe
+Benchmarking BPPP verify/16-bit/8
+Benchmarking BPPP verify/16-bit/8: Warming up for 1.0000 s
+Benchmarking BPPP verify/16-bit/8: Collecting 25 samples in estimated 3.0650 s (7150 iterations)
+Benchmarking BPPP verify/16-bit/8: Analyzing
+BPPP verify/16-bit/8    time:   [443.00 µs 445.16 µs 448.23 µs]
+                        change: [+4.3131% +5.0032% +5.8304%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 25 measurements (8.00%)
+  1 (4.00%) low mild
+  1 (4.00%) high mild
+Benchmarking BPPP verify/32-bit/8
+Benchmarking BPPP verify/32-bit/8: Warming up for 1.0000 s
+Benchmarking BPPP verify/32-bit/8: Collecting 25 samples in estimated 3.1262 s (5200 iterations)
+Benchmarking BPPP verify/32-bit/8: Analyzing
+BPPP verify/32-bit/8    time:   [615.53 µs 622.84 µs 634.58 µs]
+                        change: [+4.3777% +5.8115% +8.0184%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 25 measurements (8.00%)
+  1 (4.00%) low mild
+  1 (4.00%) high severe
+Benchmarking BPPP verify/32-bit/2
+Benchmarking BPPP verify/32-bit/2: Warming up for 1.0000 s
+Benchmarking BPPP verify/32-bit/2: Collecting 25 samples in estimated 3.0910 s (9750 iterations)
+Benchmarking BPPP verify/32-bit/2: Analyzing
+BPPP verify/32-bit/2    time:   [315.32 µs 318.42 µs 322.31 µs]
+                        change: [+3.7107% +4.8663% +6.0266%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 5 outliers among 25 measurements (20.00%)
+  2 (8.00%) low severe
+  2 (8.00%) low mild
+  1 (4.00%) high mild
+Benchmarking BPPP verify/64-bit/2
+Benchmarking BPPP verify/64-bit/2: Warming up for 1.0000 s
+Benchmarking BPPP verify/64-bit/2: Collecting 25 samples in estimated 3.0051 s (7800 iterations)
+Benchmarking BPPP verify/64-bit/2: Analyzing
+BPPP verify/64-bit/2    time:   [394.62 µs 397.15 µs 399.26 µs]
+                        change: [+0.6678% +2.1955% +3.4185%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 3 outliers among 25 measurements (12.00%)
+  2 (8.00%) low mild
+  1 (4.00%) high mild
+transfer lifting: 608 proof bytes
+Benchmarking BPPP verify/lifted/transfer
+Benchmarking BPPP verify/lifted/transfer: Warming up for 1.0000 s
+Benchmarking BPPP verify/lifted/transfer: Collecting 25 samples in estimated 3.1393 s (3250 iterations)
+Benchmarking BPPP verify/lifted/transfer: Analyzing
+BPPP verify/lifted/transfer
+                        time:   [928.45 µs 949.11 µs 982.95 µs]
+                        change: [-4.6295% -2.7170% -0.5490%] (p = 0.01 < 0.05)
+                        Change within noise threshold.
+Found 1 outliers among 25 measurements (4.00%)
+  1 (4.00%) high severe
+transfer chunked: 480 proof bytes + 128 auxiliary bytes
+Benchmarking BPPP verify/chunked/transfer
+Benchmarking BPPP verify/chunked/transfer: Warming up for 1.0000 s
+Benchmarking BPPP verify/chunked/transfer: Collecting 25 samples in estimated 3.0419 s (6500 iterations)
+Benchmarking BPPP verify/chunked/transfer: Analyzing
+BPPP verify/chunked/transfer
+                        time:   [464.04 µs 467.55 µs 472.63 µs]
+                        change: [-3.3466% -1.6666% -0.0904%] (p = 0.06 > 0.05)
+                        No change in performance detected.
+Found 5 outliers among 25 measurements (20.00%)
+  4 (16.00%) high mild
+  1 (4.00%) high severe
+transfer_with_fee lifting: 672 proof bytes
+Benchmarking BPPP verify/lifted/transfer_with_fee
+Benchmarking BPPP verify/lifted/transfer_with_fee: Warming up for 1.0000 s
+Benchmarking BPPP verify/lifted/transfer_with_fee: Collecting 25 samples in estimated 3.3956 s (1950 iterations)
+Benchmarking BPPP verify/lifted/transfer_with_fee: Analyzing
+BPPP verify/lifted/transfer_with_fee
+                        time:   [1.7203 ms 1.7297 ms 1.7414 ms]
+                        change: [-5.9496% -5.0840% -4.3306%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 3 outliers among 25 measurements (12.00%)
+  2 (8.00%) high mild
+  1 (4.00%) high severe
+transfer_with_fee chunked: 544 proof bytes + 256 auxiliary bytes
+Benchmarking BPPP verify/chunked/transfer_with_fee
+Benchmarking BPPP verify/chunked/transfer_with_fee: Warming up for 1.0000 s
+Benchmarking BPPP verify/chunked/transfer_with_fee: Collecting 25 samples in estimated 3.1063 s (4225 iterations)
+Benchmarking BPPP verify/chunked/transfer_with_fee: Analyzing
+BPPP verify/chunked/transfer_with_fee
+                        time:   [725.32 µs 728.79 µs 734.14 µs]
+                        change: [-4.4320% -3.6698% -2.7166%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 3 outliers among 25 measurements (12.00%)
+  1 (4.00%) high mild
+  2 (8.00%) high severe
+

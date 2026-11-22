@@ -1,0 +1,31 @@
+   Compiling solana-zk-sdk v8.1.0 (/home/runner/work/token-2022-range-proof-benchmarks/token-2022-range-proof-benchmarks/.upstream/zk-elgamal-proof/zk-sdk)
+    Finished `bench` profile [optimized] target(s) in 14.35s
+     Running benches/range_proof.rs (/tmp/tmp.OOjTqyszj7/target/release/deps/range_proof-db77659f2049c699)
+Solana Pedersen fixture: [198, 215, 137, 155, 154, 144, 222, 119, 14, 66, 138, 168, 209, 9, 91, 201, 72, 163, 161, 74, 51, 126, 120, 6, 92, 193, 254, 171, 9, 82, 57, 89]
+Benchmarking range_proof_verification/u64
+Benchmarking range_proof_verification/u64: Warming up for 1.0000 s
+Benchmarking range_proof_verification/u64: Collecting 25 samples in estimated 3.0447 s (3900 iterations)
+Benchmarking range_proof_verification/u64: Analyzing
+range_proof_verification/u64
+                        time:   [755.68 µs 763.56 µs 772.82 µs]
+Found 5 outliers among 25 measurements (20.00%)
+  2 (8.00%) low mild
+  1 (4.00%) high mild
+  2 (8.00%) high severe
+Benchmarking range_proof_verification/u128
+Benchmarking range_proof_verification/u128: Warming up for 1.0000 s
+Benchmarking range_proof_verification/u128: Collecting 25 samples in estimated 3.1675 s (2275 iterations)
+Benchmarking range_proof_verification/u128: Analyzing
+range_proof_verification/u128
+                        time:   [1.3536 ms 1.3584 ms 1.3634 ms]
+Found 1 outliers among 25 measurements (4.00%)
+  1 (4.00%) high severe
+Benchmarking range_proof_verification/u256
+Benchmarking range_proof_verification/u256: Warming up for 1.0000 s
+Benchmarking range_proof_verification/u256: Collecting 25 samples in estimated 3.0538 s (1300 iterations)
+Benchmarking range_proof_verification/u256: Analyzing
+range_proof_verification/u256
+                        time:   [2.2471 ms 2.2590 ms 2.2824 ms]
+Found 1 outliers among 25 measurements (4.00%)
+  1 (4.00%) high severe
+

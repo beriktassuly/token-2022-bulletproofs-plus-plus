@@ -1,0 +1,5 @@
+Source commit: 7c643c46f57e4800c10a934791fa39ae415b74f2
+Benchmark artifact: GitHub Actions run 45027245255, artifact range-proof-benchmarks
+End-to-end artifact: GitHub Actions run 45027245255, artifact chunked16-e2e
+Workflow run date: 2026-11-22
+Both artifacts were produced from the source commit listed above.
