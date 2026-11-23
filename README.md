@@ -6,14 +6,14 @@ Can Bulletproofs++ reduce CPU time for Token-2022 confidential-transfer range-pr
 
 ## Verification results
 
-Proof verification only, on one GitHub-hosted Ubuntu 24.04 runner. The workflow ran two paired cycles on the same runner: zk-sdk, BP++, BP++, zk-sdk. Values below are Criterion estimates; the full intervals are in the raw logs.
+Isolated verifier benchmarks. Two paired cycles ran in this order: zk-sdk, BP++, BP++, zk-sdk. Values below are Criterion estimates; the full intervals are in the raw logs.
 
 | Scenario | Pair 1: zk-sdk -> chunked-16 | Change | Pair 2: zk-sdk -> chunked-16 | Change |
 |---|---:|---:|---:|---:|
 | Transfer without fee (U128) | 1.3584 -> 0.4849 ms | -64.3% (2.80x) | 1.2579 -> 0.4676 ms | -62.8% (2.69x) |
 | Transfer with fee (U256) | 2.2590 -> 0.7589 ms | -66.4% (2.98x) | 2.1076 -> 0.7288 ms | -65.4% (2.89x) |
 
-Runner details, compiler version, flags, and raw Criterion output are in results/2026-11-22/benchmark/. Runner hardware can vary; compare paired measurements from one run.
+Compiler version, flags, and raw Criterion output are in [the benchmark logs](results/2026-11-22/benchmark/).
 
 ~~~mermaid
 xychart-beta
@@ -22,6 +22,12 @@ xychart-beta
     y-axis "ms" 0 --> 2.5
     bar [1.3584, 0.4849, 2.2590, 0.7589]
 ~~~
+
+## Agave measurements
+
+We timed full proof instruction execution in a local Agave build, alternating the order of the two verifiers across 50 pairs per scenario in each run. The median current / chunked-16 time ratio was ~2.2× for U128 and ~2.4× for U256 with the default backend (5th percentile ≥1.8×), and ~2.9× and ~3.1× with serial. The default backend accelerates the current verifier's large MSM, narrowing the gap with BP++'s smaller MSM (58 and 101 points).
+
+See the [summary](agave-bench/summary.md), [matrix data](agave-bench/results.csv), and [same-machine BP++ backend comparison](agave-bench/default-vs-serial.csv).
 
 ## Proof and transaction sizes
 
@@ -49,7 +55,7 @@ Chunked-16 proves 16-bit chunks and includes auxiliary commitments for the high 
 
 - The CPU result does not translate directly into on-chain CU savings. The ZK ElGamal proof program charges fixed CU tariffs; this repository does not change those tariffs or add a deployable proof instruction.
 - BP++ in fastcrypto is experimental. Chunked-16 has not received a formal proof or an independent audit.
-- No real validator execution, SBF verification benchmark, or production deployment is included.
+- Not tested yet: a full Token-2022 transfer on a running validator.
 
 ## Reproduce
 
