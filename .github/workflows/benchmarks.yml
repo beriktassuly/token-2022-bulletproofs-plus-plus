@@ -56,3 +56,19 @@ jobs:
           name: range-proof-benchmarks
           path: benchmark-results/
           retention-days: 14
+  soundness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: BP++ soundness tests and mutation checks
+        run: bash scripts/soundness.sh
+      - name: Upload soundness logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bppp-soundness
+          path: soundness-results/
+          retention-days: 14

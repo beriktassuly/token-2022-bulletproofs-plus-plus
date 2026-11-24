@@ -57,12 +57,14 @@ pub const FEE_WIDTHS: [usize; 8] = [
     NET_TRANSFER_AMOUNT_BIT_LENGTH,
 ];
 
-/// Extractor 0.7.0 (transfer.rs) checks the first three commitments and ignores
-/// padding, so BP++ does not include padding.
-pub const PLAIN_WIDTHS: [usize; 3] = [
+/// Every active slot of the U128 context, padding included. Extractor 0.7.0
+/// (transfer.rs) checks only the first three commitments but all four bit lengths,
+/// and the context written to a context-state account attests to all four.
+pub const PLAIN_WIDTHS: [usize; 4] = [
     REMAINING_BALANCE_BIT_LENGTH,
     TRANSFER_AMOUNT_LO_BITS,
     TRANSFER_AMOUNT_HI_BITS,
+    PADDING_BIT_LENGTH,
 ];
 
 pub struct Parties {
@@ -397,8 +399,8 @@ pub fn plain(p: &Parties, src: &SourceAccount, amount: u64) -> PlainFixture {
     .expect("range u128 proof");
     let witness = RangeWitness::from_context(
         &range.context_data().commitments,
-        &[c.new_balance, c.lo, c.hi],
-        &[&c.new_opening, &c.op_lo, &c.op_hi],
+        &[c.new_balance, c.lo, c.hi, 0],
+        &[&c.new_opening, &c.op_lo, &c.op_hi, &pad_opening],
         &PLAIN_WIDTHS,
     );
     PlainFixture {
