@@ -11,6 +11,11 @@
 //! checks one 16-bit batch proof over `C_0, H_1, ...` for all values. The number of high
 //! chunks is bound to the declared widths, since an extra chunk would widen the proven
 //! range.
+//!
+//! The derived 16-bit statement does not determine the original commitments and widths
+//! (`[C]` at 32 bits and `[C - 2^16*H_1, H_1]` at 16 bits give the same one), so the
+//! transcript also binds the original commitments, widths and high-chunk commitments.
+//! Callers must pass every active commitment of the statement they attest to.
 
 use fastcrypto::{
     bulletproofspp::{Range, RangeProof},
@@ -90,6 +95,30 @@ pub fn chunked_commitments(
     Ok(statement)
 }
 
+/// The tag passed to Bulletproofs++: the caller's tag, then for each original commitment
+/// its encoding, its declared width and its high-chunk commitments. The caller's tag and
+/// the commitment count are length-prefixed and the high-chunk count follows from the
+/// width, so distinct statements give distinct tags.
+fn bound_dst(
+    dst: &[u8],
+    commitments: &[[u8; 32]],
+    widths: &[u32],
+    high_chunks: &[Vec<[u8; 32]>],
+) -> Vec<u8> {
+    let mut bound = Vec::new();
+    bound.extend_from_slice(&(dst.len() as u64).to_le_bytes());
+    bound.extend_from_slice(dst);
+    bound.extend_from_slice(&(commitments.len() as u64).to_le_bytes());
+    for ((commitment, width), high) in commitments.iter().zip(widths).zip(high_chunks) {
+        bound.extend_from_slice(commitment);
+        bound.extend_from_slice(&width.to_le_bytes());
+        for chunk in high {
+            bound.extend_from_slice(chunk);
+        }
+    }
+    bound
+}
+
 /// Proves that every `values[i]` fits in `widths[i]` bits, given the blindings of the
 /// existing commitments to those values.
 pub fn prove<R: AllowedRng>(
@@ -103,6 +132,7 @@ pub fn prove<R: AllowedRng>(
         return Err(FastCryptoError::InvalidInput);
     }
     let step = RistrettoScalar::from(1u64 << CHUNK_BITS);
+    let mut originals = Vec::with_capacity(values.len());
     let mut chunk_values = Vec::new();
     let mut chunk_blindings = Vec::new();
     let mut high_chunks = Vec::with_capacity(values.len());
@@ -111,6 +141,8 @@ pub fn prove<R: AllowedRng>(
         if width < 64 && value >> width != 0 {
             return Err(FastCryptoError::InvalidInput);
         }
+        let original = PedersenCommitment::new(&RistrettoScalar::from(value), blinding);
+        originals.push(original.0.to_byte_array());
         let high_values: Vec<u64> = (1..width / CHUNK_BITS)
             .map(|i| (value >> (i * CHUNK_BITS)) & 0xffff)
             .collect();
@@ -138,7 +170,9 @@ pub fn prove<R: AllowedRng>(
                 .collect(),
         );
     }
-    let proof = RangeProof::prove_batch(&chunk_values, &chunk_blindings, &Range::Bits16, dst, rng)?;
+    let tag = bound_dst(dst, &originals, widths, &high_chunks);
+    let range = Range::Bits16;
+    let proof = RangeProof::prove_batch(&chunk_values, &chunk_blindings, &range, &tag, rng)?;
     Ok(ChunkedProof {
         proof: proof.to_bytes(),
         high_chunks,
@@ -161,10 +195,11 @@ pub fn verify(
         }
     }
     let batch = RangeProof::from_bytes(&proof.proof)?;
+    let tag = bound_dst(dst, commitments, widths, &proof.high_chunks);
     batch.verify_batch(
         &chunked_commitments(commitments, &proof.high_chunks)?,
         &Range::Bits16,
-        dst,
+        &tag,
     )
 }
 
@@ -224,5 +259,41 @@ mod tests {
         for width in [0, 8, 24, 80] {
             assert!(high_chunk_count(width).is_err());
         }
+    }
+
+    #[test]
+    fn rejects_regrouped_statement() {
+        // [C] at 32 bits and [C - 2^16*H_1, H_1] at 16 bits each give the same
+        // 16-bit statement; the transcript must still tell them apart.
+        let value = 0x1234_5678;
+        let (commitments, blindings) = commit(&[value]);
+        let proof = prove(&[value], &blindings, &[32], DST, &mut rand::thread_rng()).unwrap();
+        verify(&commitments, &[32], &proof, DST).unwrap();
+        let regrouped: Vec<[u8; 32]> = chunked_commitments(&commitments, &proof.high_chunks)
+            .unwrap()
+            .iter()
+            .map(|chunk| chunk.0.to_byte_array())
+            .collect();
+        let split = ChunkedProof {
+            proof: proof.proof.clone(),
+            high_chunks: vec![vec![], vec![]],
+        };
+        assert!(verify(&regrouped, &[16, 16], &split, DST).is_err());
+    }
+
+    #[test]
+    fn rejects_altered_high_chunks() {
+        let (commitments, blindings) = commit(&[u64::MAX]);
+        let proof = prove(&[u64::MAX], &blindings, &[64], DST, &mut rand::thread_rng()).unwrap();
+        verify(&commitments, &[64], &proof, DST).unwrap();
+        let (other, _) = commit(&[1]);
+        for i in 0..3 {
+            let mut altered = proof.clone();
+            altered.high_chunks[0][i] = other[0];
+            assert!(verify(&commitments, &[64], &altered, DST).is_err());
+        }
+        let mut swapped = proof;
+        swapped.high_chunks[0].swap(0, 2);
+        assert!(verify(&commitments, &[64], &swapped, DST).is_err());
     }
 }

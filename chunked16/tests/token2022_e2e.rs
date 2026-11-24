@@ -81,6 +81,15 @@ fn context_bytes<C: bytemuck::Pod>(commitments: &[C], n: usize) -> Vec<[u8; 32]>
         .collect()
 }
 
+/// Active slots of a `BatchedRangeProofContext`: the leading nonzero commitment
+/// encodings, as in zk-sdk `verify_batched_range_proof_context`.
+fn active_slots<C: bytemuck::Pod>(commitments: &[C]) -> usize {
+    commitments
+        .iter()
+        .take_while(|c| bytemuck::bytes_of(*c).iter().any(|&b| b != 0))
+        .count()
+}
+
 /// Proves and verifies on the extractor-checked bytes; rejects a reordering and a foreign DST.
 fn check_chunked(name: &str, witness: &RangeWitness, context: &[[u8; 32]]) -> ChunkedProof {
     assert_eq!(
@@ -211,6 +220,11 @@ fn chunked16_on_extractor_accepted_commitments() {
 
     let pl = plain(&p, &src, PLAIN_AMOUNT);
     assert!(extract_plain(&pl).is_ok());
+    assert_eq!(
+        active_slots(&pl.range.context_data().commitments),
+        pl.witness.widths.len(),
+        "plain: chunked-16 must cover every active context slot"
+    );
     let context = context_bytes(
         &pl.range.context_data().commitments,
         pl.witness.widths.len(),
@@ -227,6 +241,12 @@ fn chunked16_on_extractor_accepted_commitments() {
         assert!(
             extract_fee(&fx, case.bps, case.max_fee).is_ok(),
             "{}",
+            case.name
+        );
+        assert_eq!(
+            active_slots(&fx.range.context_data().commitments),
+            fx.witness.widths.len(),
+            "{}: chunked-16 must cover every active context slot",
             case.name
         );
         let context = context_bytes(
