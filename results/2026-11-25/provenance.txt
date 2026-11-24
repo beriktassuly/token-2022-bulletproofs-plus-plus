@@ -1,0 +1,11 @@
+Source commit: a48b8662210f0d37f97683438e35df895b9680ab
+Benchmark artifact: GitHub Actions run 45487902378, artifact range-proof-benchmarks
+End-to-end artifact: GitHub Actions run 45487902378, artifact chunked16-e2e
+Workflow run date: 2026-11-25
+Workflow run URL: https://github.com/beriktassuly/token-2022-bulletproofs-plus-plus/actions/runs/45487902378
+Workflow event: workflow_dispatch
+Workflow branch: main
+Workflow created at (UTC): 2026-11-24T21:07:43Z
+Benchmark job: 138778099770, started 2026-11-24T21:07:48Z, completed 2026-11-24T21:13:25Z
+End-to-end job: 138778100199, started 2026-11-24T21:07:48Z, completed 2026-11-24T21:08:56Z
+Both artifacts were produced from the source commit listed above.

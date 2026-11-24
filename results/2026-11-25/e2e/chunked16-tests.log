@@ -1,0 +1,76 @@
+    Updating crates.io index
+   Compiling fastcrypto-derive v0.1.5 (/home/runner/work/token-2022-bulletproofs-plus-plus/token-2022-bulletproofs-plus-plus/.upstream/fastcrypto/fastcrypto-derive)
+   Compiling fastcrypto v0.1.12 (/home/runner/work/token-2022-bulletproofs-plus-plus/token-2022-bulletproofs-plus-plus/.upstream/fastcrypto/fastcrypto)
+warning: use of deprecated struct `generic_array::GenericArray`: please upgrade to generic-array 1.x
+  --> /home/runner/work/token-2022-bulletproofs-plus-plus/token-2022-bulletproofs-plus-plus/.upstream/fastcrypto/fastcrypto/src/hash.rs:21:20
+   |
+21 | use generic_array::GenericArray;
+   |                    ^^^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated struct `generic_array::GenericArray`: please upgrade to generic-array 1.x
+   --> /home/runner/work/token-2022-bulletproofs-plus-plus/token-2022-bulletproofs-plus-plus/.upstream/fastcrypto/fastcrypto/src/hash.rs:143:28
+    |
+143 |             .finalize_into(GenericArray::from_mut_slice(&mut digest));
+    |                            ^^^^^^^^^^^^
+
+warning: use of deprecated associated function `generic_array::GenericArray::<T, N>::from_mut_slice`: please upgrade to generic-array 1.x
+   --> /home/runner/work/token-2022-bulletproofs-plus-plus/token-2022-bulletproofs-plus-plus/.upstream/fastcrypto/fastcrypto/src/hash.rs:143:42
+    |
+143 |             .finalize_into(GenericArray::from_mut_slice(&mut digest));
+    |                                          ^^^^^^^^^^^^^^
+
+warning: use of deprecated method `generic_array::GenericArray::<T, N>::as_slice`: please upgrade to generic-array 1.x
+   --> /home/runner/work/token-2022-bulletproofs-plus-plus/token-2022-bulletproofs-plus-plus/.upstream/fastcrypto/fastcrypto/src/secp256r1/recoverable.rs:106:54
+    |
+106 |                 .copy_from_slice(self.sig.to_bytes().as_slice());
+    |                                                      ^^^^^^^^
+
+warning: use of deprecated method `generic_array::GenericArray::<T, N>::as_slice`: please upgrade to generic-array 1.x
+   --> /home/runner/work/token-2022-bulletproofs-plus-plus/token-2022-bulletproofs-plus-plus/.upstream/fastcrypto/fastcrypto/src/secp256r1/mod.rs:369:78
+    |
+369 |             <[u8; SECP256R1_SIGNATURE_LENGTH]>::try_from(self.sig.to_bytes().as_slice()).unwrap()
+    |                                                                              ^^^^^^^^
+
+   Compiling token2022-chunked16 v0.1.0 (/home/runner/work/token-2022-bulletproofs-plus-plus/token-2022-bulletproofs-plus-plus/chunked16)
+warning: `fastcrypto` (lib) generated 5 warnings
+    Finished `release` profile [optimized] target(s) in 8.11s
+     Running unittests src/lib.rs (target/release/deps/token2022_chunked16-8c030ffa531cf174)
+
+running 6 tests
+test tests::rejects_invalid_widths ... ok
+test tests::rejects_value_wider_than_declared ... ok
+test tests::rejects_regrouped_statement ... ok
+test tests::rejects_extra_high_chunks ... ok
+test tests::rejects_altered_high_chunks ... ok
+test tests::round_trip_at_token2022_widths ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/token2022_e2e.rs (target/release/deps/token2022_e2e-4cc9a40bce7b2533)
+
+running 4 tests
+test fee_rule_matches_generator_0_7_0 ... ok
+test pedersen_bases_match_zk_sdk ... ok
+plain: TX v1 inline 2390 B, context-state 2884 B
+plain: chunked-16 480 proof bytes + 128 auxiliary bytes
+percentage: TX v1 inline 3242 B, context-state 4066 B
+raw_eq_max: TX v1 inline 3242 B, context-state 4066 B
+cap: TX v1 inline 3242 B, context-state 4066 B
+cap_max_zero: TX v1 inline 3242 B, context-state 4066 B
+zero_rate: TX v1 inline 3242 B, context-state 4066 B
+zero_rate_max_zero: TX v1 inline 3242 B, context-state 4066 B
+full_rate: TX v1 inline 3242 B, context-state 4066 B
+max_amount: TX v1 inline 3242 B, context-state 4066 B
+test sdk_control_nine_scenarios ... ok
+test chunked16_on_extractor_accepted_commitments ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+
+   Doc-tests token2022_chunked16
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
